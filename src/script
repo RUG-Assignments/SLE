@@ -1,0 +1,8 @@
+import ParseTree;
+import Syntax;
+import AST;
+import CST2AST;
+import Resolve;
+pt = parse(#start[Form], |project://sle-rug/examples/tax.myql|);
+ast = cst2ast(pt);
+resolve(ast);

@@ -1,0 +1,24 @@
+form tempExample {
+    "Did you buy a house in 2010?"
+    hasBoughtHouse: boolean
+    
+  "Did you enter a loan?"
+    hasMaintLoan: boolean
+    
+  "Did you sell a house in 2010?"
+    hasSoldHouse: boolean    
+
+    if (hasSoldHouse) {
+    "What was the selling price?"
+      sellingPrice: integer
+    "Private debts for the sold house:"
+      privateDebt: integer  
+      if (x_15_16) { 
+          "The answer is" answer_15_16: integer
+    }
+    else { 
+          "The answer is" answer_16_17: integer
+        }
+
+    } 
+}

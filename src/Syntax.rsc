@@ -8,23 +8,15 @@ extend lang::std::Id;
  */
 
 start syntax Form 
-  = "form" Id name "{" Component* components "}"
+  = "form" Id name "{" Question* questions "}"
   ; 
-
-syntax Component
-  = Question question
-  | Conditional cond
-  ;
 
 // TODO: question, computed question, block, if-then-else, if-then
 syntax Question 
   = Str question Id var ":" Type t 
   | Str question Id var ":" Type t "=" Expr
-  ;
-
-syntax Conditional
-  = "if" "(" Expr expr ")" "{" Component* components "}" 
-  | "if" "(" Expr expr ")" "{" Component* components "}" "else" "{" Component* components "}"
+  | "if" "(" Expr expr ")" "{" Question* questions "}" 
+  | "if" "(" Expr expr ")" "{" Question* questions "}" "else" "{" Question* questions "}"
   ;
 
 // TODO: +, -, *, /, &&, ||, !, >, <, <=, >=, ==, !=, literals (bool, int, str)

@@ -30,19 +30,13 @@ Use uses(AForm f) {
   for(/AId N := f) {
     relations += <N.src, N.name>;
   }
-  println(relations);
   return relations;
 }
 
 Def defs(AForm f) {
   Def relations = {};
-  /*
-  for(/AForm N := f) {
-    relations += <N.name.name, N.src>;
-  } 
-  */
-  for(/AQuestion N := f) {
-    relations += <N.var.name, N.src>;
+  for(/AQuestion N := f, N has var) {
+      relations += <N.var.name, N.src>;
   }
   return relations; 
 }

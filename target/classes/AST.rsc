@@ -8,22 +8,14 @@ module AST
  */
 
 data AForm(loc src = |file:///|)
-  = basicForm(AId name, list[AComponent] components)
+  = form(AId name, list[AQuestion] questions)
   ; 
-
-data AComponent(loc src = |file:///|)
-  = qComp(AQuestion question)
-  | conComp(AConditional condition)
-  ;
 
 data AQuestion(loc src = |file:///|)
   = basicQ(str question, AId var, AType t)
   | computedQ(str question, AId var, AType t, AExpr expr)
-  ; 
-
-data AConditional(loc src = |file:///|)
-  = conditionalQ(AExpr expr, list[AComponent] components)
-  | conditionalQWithElse(AExpr expr, list[AComponent] ifcoms, list[AComponent] elsecoms)
+  | conditionalQ(AExpr expr, list[AQuestion] questions)
+  | conditionalQWithElse(AExpr expr, list[AQuestion] ifqs, list[AQuestion] elseqs)
   ;
 
 data AExpr(loc src = |file:///|)
@@ -51,4 +43,7 @@ data AId(loc src = |file:///|)
   = id(str name);
 
 data AType(loc src = |file:///|)
-  = typ(str ty);
+  = stringType()
+  | booleanType()
+  | intType()
+  ;

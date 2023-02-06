@@ -1,0 +1,31 @@
+import ParseTree;
+import Syntax;
+import AST;
+import CST2AST;
+import Resolve;
+import Check;
+// pt = parse(#start[Form], |project://sle-rug/examples/temp.myql|);
+pt = parse(#start[Form], |project://SLE/examples/tax.myql|);
+// pt = parse(#start[Form], |project://sle-rug/examples/binary.myql|);
+ast = cst2ast(pt);
+resolve(ast);
+check(ast, collect(ast), resolve(ast)[2]);
+import IDE;
+main();
+import Eval;
+venv = initialEnv(ast);
+Input = input("hasSoldHouse", vbool(false));
+venv = eval(ast, Input, venv);
+import Compile;
+form2js(ast);
+import Transform;
+usedef = resolve(ast)[2];
+import Set;
+rename(pt, getOneFrom(resolve(ast)[0].use), "Frank", resolve(ast)[2]);
+flatten(ast);
+import Compile;
+form2html(ast);
+
+// Remarks
+// nested ifs only work if you use flatten + if there are no common variables between if and else
+// questions are out of order to preserve code quality

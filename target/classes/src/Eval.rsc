@@ -1,30 +1,3 @@
-import ParseTree;
-import Syntax;
-import AST;
-import CST2AST;
-import Resolve;
-import Check;
-// pt = parse(#start[Form], |project://sle-rug/examples/temp.myql|);
-pt = parse(#start[Form], |project://sle-rug/examples/tax.myql|);
-// pt = parse(#start[Form], |project://sle-rug/examples/binary.myql|);
-ast = cst2ast(pt);
-resolve(ast);
-check(ast, collect(ast), resolve(ast)[2]);
-import IDE;
-main();
-import Eval;
-venv = initialEnv(ast);
-Input = input("hasSoldHouse", vbool(false));
-venv = eval(ast, Input, venv);
-
-// TODO
-// duplicate labels - the first one shouldn't have the warning
-// same label, different type - the first one shouldn't have the error
-// eval stuff
-
-// use modeltomodel in html thing
-
-// old code 
 module Eval
 
 import AST;
@@ -76,59 +49,42 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
-  println(inp.question);
-  for (/AQuestion q := f, q is basicQ || q is computedQ) {  
-    venv = eval(q, inp, venv);
-  }
+  qs_in_conditionals = {};
+  all_qs = { q | q <- f.questions};
   for (/AQuestion q := f, q is conditionalQ || q is conditionalQWithElse) {    
     if(q is conditionalQ) {
-      println(venv);
-      println(q.expr);
-      println(eval(q.expr, venv));
-      if(eval(q.expr, venv) == vbool(false)) {
-        for (qs <- q.questions, qs.var.name in venv){
-          println("removing " + qs.var.name);
-          venv -= (qs.var.name : venv[qs.var.name]);
-        }
-      } else {
-        for (qs <- q.questions, qs.var.name notin venv){
-          if (qs is basicQ) {
-            if (qs.t is booleanType) {
-              venv += (qs.var.name : vbool(false));
-            } else if (qs.t is intType) {
-              venv += (qs.var.name : vint(0));
-            } else if (qs.t is stringType) {
-              venv += (qs.var.name : vstr(""));
-            }
-          } else if (qs is computedQ) {
-            venv += (qs.var.name : eval(qs.expr, venv));
-          }
+      if(eval(q.expr, venv) == vbool(true)) {
+        for(qs <- q.questions){
+          venv += eval(qs, inp, venv);
         }
       }
+      qs_in_conditionals += {question | question <- q.questions};
     } else if(q is conditionalQWithElse) {
-      if(eval(q.expr, venv) == vbool(false)) {
-        for (qs <- q.ifqs, qs.var.name in venv){
-          venv -= (qs.var.name : venv[qs.var.name]);
+      if(eval(q.expr, venv) == vbool(true)) {
+        for (qs <- q.ifqs){
+          venv += eval(qs, inp, venv);
         }
       } else {
-        for (qs <- q.elseqs, qs.var.name in venv){
-          venv -= (qs.var.name : venv[qs.var.name]);
+        for (qs <- q.elseqs){
+          venv += eval(qs, inp, venv);
         }
       }
+      qs_in_conditionals += {question | question <- q.ifqs};
+      qs_in_conditionals += {question | question <- q.elseqs};
     }
   }
-  for (/AQuestion q := f) {
-    venv = eval(q, inp, venv);
+  // evaluate basic qs outside conditionals
+  for (/AQuestion q <- all_qs, (q is basicQ || q is computedQ) && q notin qs_in_conditionals) {   
+    venv += eval(q, inp, venv);
   }
-  println("STOP");
   return venv; 
 }
 
+// evaluate inp and computed questions to return updated VEnv
 VEnv eval(AQuestion q, Input inp, VEnv venv) {
-  // evaluate inp and computed questions to return updated VEnv
-  if(q is basicQ && q.var.name == inp.question && q.var.name in venv) {
+  if(q is basicQ && q.var.name == inp.question) {
     venv += (inp.question : inp.\value);
-  } else if (q is computedQ && q.var.name in venv) {
+  } else if (q is computedQ) {
     venv += (q.var.name : eval(q.expr, venv));
   }
   return venv; 
@@ -144,8 +100,7 @@ int valueToInt(Value val) {
 
 Value eval(AExpr e, VEnv venv) {
   switch (e) {
-    // change later
-    case ref(id(str x)): return (x in venv) ? venv[x] : vbool(false);
+    case ref(id(str x)): return venv[x];
     case number(int x): return vint(x);
     case boolean(bool x): return vbool(x);
     case withPars(AExpr expr): return eval(expr, venv);

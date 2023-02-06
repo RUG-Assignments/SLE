@@ -53,9 +53,14 @@ TEnv collect(AForm f) {
 
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
   set[Message] messages = {};
-  for (/AQuestion q := f) {
+  for (/AQuestion q <- f.questions) {
     if (q is basicQ || q is computedQ) {
       messages += check(q, tenv, useDef);
+    } else {
+      // conditionals should be bools
+      for(<d, _, _, t> <- tenv) {
+        messages += { error("Expected conditions of type boolean but got " + typeToString(typeOf(q.expr, tenv, useDef)), q.expr.src) |typeOf(q.expr, tenv, useDef) != tbool()};
+      }
     }
   }
   return messages; 

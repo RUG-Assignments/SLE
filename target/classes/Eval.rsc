@@ -100,7 +100,6 @@ int valueToInt(Value val) {
 
 Value eval(AExpr e, VEnv venv) {
   switch (e) {
-    // change later
     case ref(id(str x)): return venv[x];
     case number(int x): return vint(x);
     case boolean(bool x): return vbool(x);

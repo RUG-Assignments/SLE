@@ -13,10 +13,15 @@ form taxOfficeExample {
       sellingPrice: integer
     "Private debts for the sold house:"
       privateDebt: integer
-    "Value residue:"
-      valueResidue: integer = sellingPrice - privateDebt
+    if (hasMaintLoan) {
+      "Value residue:"
+        valueResidue: integer = sellingPrice - privateDebt
+    } else {
+        "222222222222222222222222"
+          has222: boolean
+    } 
   } else {
-    "Value residue:"
-      valueResidue: integer = sellingPrice - privateDebt
+    "Did you enter a loan 333333?"
+      jjjjjj: boolean
   }
 }

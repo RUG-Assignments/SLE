@@ -15,8 +15,5 @@ form taxOfficeExample {
       privateDebt: integer
     "Value residue:"
       valueResidue: integer = sellingPrice - privateDebt
-  } else {
-    "Value residue:"
-      valueResidue: integer = sellingPrice - privateDebt
   }
 }

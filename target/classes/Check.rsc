@@ -39,8 +39,6 @@ Type convert(AType t){
 // the type environment consisting of defined questions in the form 
 alias TEnv = rel[loc def, str name, str label, Type \type];
 
-// To avoid recursively traversing the form, use the `visit` construct
-// or deep match (e.g., `for (/question(...) := f) {...}` ) 
 TEnv collect(AForm f) {
   TEnv collections = {};
   for (/AQuestion q := f) {
@@ -57,7 +55,7 @@ set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
     if (q is basicQ || q is computedQ) {
       messages += check(q, tenv, useDef);
     } else {
-      // conditionals should be bools
+      // check is conditionals are bools
       for(<d, _, _, t> <- tenv) {
         messages += { error("Expected conditions of type boolean but got " + typeToString(typeOf(q.expr, tenv, useDef)), q.expr.src) |typeOf(q.expr, tenv, useDef) != tbool()};
       }
@@ -66,10 +64,6 @@ set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
   return messages; 
 }
 
-// name = id, label = str question
-// - produce an error if there are declared questions with the same name but different types.
-// - duplicate labels should trigger a warning 
-// - the declared type computed questions should match the type of the expression.
 set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
 
@@ -106,9 +100,6 @@ set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   return msgs;
 }
 
-// Check operand compatibility with operators.
-// E.g. for an addition node add(lhs, rhs), 
-//   the requirement is that typeOf(lhs) == typeOf(rhs) == tint()
 set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
   switch (e) {
@@ -172,18 +163,3 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
   }
   return temp; 
 }
-
-/* 
- * Pattern-based dispatch style:
- * 
- * Type typeOf(ref(id(_, src = loc u)), TEnv tenv, UseDef useDef) = t
- *   when <u, loc d> <- useDef, <d, x, _, Type t> <- tenv
- *
- * ... etc.
- * 
- * default Type typeOf(AExpr _, TEnv _, UseDef _) = tunknown();
- *
- */
- 
- 
-

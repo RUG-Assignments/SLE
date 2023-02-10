@@ -9,19 +9,8 @@ import lang::html::AST; // see standard library
 import lang::html::IO;
 import Boolean;
 
-/*
- * Implement a compiler for QL to HTML and Javascript
- *
- * - assume the form is type- and name-correct
- * - separate the compiler in two parts form2html and form2js producing 2 files
- * - use string templates to generate Javascript
- * - use the HTMLElement type and the `str writeHTMLString(HTMLElement x)` function to format to string
- * - use any client web framework (e.g. Vue, React, jQuery, whatever) you like for event handling
- * - map booleans to checkboxes, strings to textfields, ints to numeric text fields
- * - be sure to generate uneditable widgets for computed questions!
- * - if needed, use the name analysis to link uses to definitions
- */
-
+// Get the name of the JS file that is being compiled, 
+// so that the value can be added to the html file to connect to the JS file
 str getJSFileName(AForm f) {
   loc u = f.src[extension="js"].top;
   str fileName = u.file;
@@ -234,7 +223,7 @@ str expr2str(AExpr expr) {
     case mul(AExpr lhs, AExpr rhs): return (expr2str(lhs) + " * " + expr2str(rhs));     
     case not(AExpr expr): return ("!" + expr2str(expr));
   }
-  return "This is so unnecessary";
+  return "Unimplemented expression type";
 }
 
 str form2js(AForm f) {
